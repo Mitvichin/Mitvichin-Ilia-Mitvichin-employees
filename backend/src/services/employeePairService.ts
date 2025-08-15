@@ -1,14 +1,21 @@
 import csv from 'csv-parser';
+import dayjs from 'dayjs';
 import { Readable } from 'stream';
-const expectedHeaders = ['EmpID', 'ProjectID', 'DateFrom', 'DateTo'];
+import { Employee } from '../types/Employee.js';
+import { EmployeeRow } from '../types/EmployeeRow.js';
+import { Heap } from 'heap-js';
+const expectedHeaders: (keyof EmployeeRow)[] = ['EmpID', 'ProjectID', 'DateFrom', 'DateTo'];
+type EmployeWithoutId = Omit<Employee, 'projectId'>;
 
-const parseCSV = (file: Express.Multer.File) => {
+const parseEmplyeeCSV = (
+  file: Express.Multer.File,
+): Promise<Record<string, EmployeWithoutId[]>> => {
   return new Promise((res, rej) => {
-    const results: any = [];
     const errors: string[] = [];
     let isHeaderChecked = false;
     let rowIndex = 1;
     const stream = Readable.from(file.buffer);
+    const byProject: Record<string, EmployeWithoutId[]> = {};
 
     stream
       .pipe(csv())
@@ -19,7 +26,7 @@ const parseCSV = (file: Express.Multer.File) => {
           errors.push(`Missing headers: ${missing.join(', ')}`);
         }
       })
-      .on('data', (row: any) => {
+      .on('data', (row: EmployeeRow) => {
         let errorMsg = 'Missing value for ';
         let hasError = false;
         expectedHeaders.forEach((field) => {
@@ -36,12 +43,26 @@ const parseCSV = (file: Express.Multer.File) => {
         }
 
         rowIndex++;
-        results.push(row);
+
+        if (row.DateTo === 'NULL') {
+          row.DateTo = new Date().toString();
+        }
+
+        row.DateTo = dayjs(row.DateTo).format('YYYY-MM-DD');
+        row.DateFrom = dayjs(row.DateFrom).format('YYYY-MM-DD');
+
+        if (!byProject[row.ProjectID]) byProject[row.ProjectID] = [];
+
+        byProject[row.ProjectID]?.push({
+          id: Number(row.EmpID),
+          startDate: dayjs(row.DateFrom),
+          endDate: dayjs(row.DateTo),
+        });
       })
       .on('end', () => {
         if (!isHeaderChecked) errors.push('CSV has no headers');
         if (errors.length) rej({ status: 400, message: errors.join(' ') });
-        res(results);
+        res(byProject);
       })
       .on('error', (err) => {
         rej({ status: 500, message: err.message });
@@ -50,7 +71,58 @@ const parseCSV = (file: Express.Multer.File) => {
 };
 
 const handleFileUpload = async (file: Express.Multer.File) => {
-  return await parseCSV(file);
+  const groupedByProject = await parseEmplyeeCSV(file);
+  let max = 0;
+  let maxKey = null;
+  const store: Record<
+    string,
+    {
+      total: number;
+      projects: { empId1: number; empId2: number; projectId: number; days: number }[];
+    }
+  > = {};
+
+  for (const [projectId, emps] of Object.entries(groupedByProject)) {
+    emps.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf());
+    const active = new Heap<EmployeWithoutId>((a, b) => a.endDate.valueOf() - b.endDate.valueOf());
+
+    for (const emp of emps) {
+      while (active.peek() && active.peek()!.endDate.isBefore(emp.startDate)) {
+        active.pop();
+      }
+
+      for (const other of active) {
+        const overlapStart = emp.startDate.isAfter(other.startDate)
+          ? emp.startDate
+          : other.startDate;
+        const overlapEnd = emp.startDate.isBefore(other.endDate) ? emp.endDate : other.endDate;
+
+        if (overlapStart.isBefore(overlapEnd)) {
+          const overlapDays = overlapEnd.diff(overlapStart, 'day');
+          const key = [emp.id, other.id].sort((a, b) => a - b).join('-');
+
+          if (!store[key]) store[key] = { total: 0, projects: [] };
+
+          store[key].total += overlapDays;
+          store[key].projects.push({
+            empId1: emp.id,
+            empId2: other.id,
+            projectId: Number(projectId),
+            days: overlapDays,
+          });
+
+          if (store[key].total > max) {
+            max = store[key].total;
+            maxKey = key;
+          }
+        }
+      }
+
+      active.push(emp);
+    }
+  }
+
+  return maxKey !== null ? store[maxKey] : {};
 };
 
 export { handleFileUpload };
