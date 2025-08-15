@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
-import { employeePairRouter } from './routes/employeePair.route.js';
 import { errorMiddleware } from './middlewares/errorHandler.js';
+import { employeePairRouter } from './routes/EmployeePair.route.js';
 
 const app: Application = express();
 
