@@ -8,7 +8,7 @@ export const EmployeesPairPage: React.FC = () => {
 
     try {
       const response = await appFetch(
-        '/api/upload',
+        '/api/find-pair',
         {
           method: 'POST',
           body: formData,

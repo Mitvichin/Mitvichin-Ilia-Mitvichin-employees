@@ -1,14 +1,13 @@
-import express, { Application, Response, Request } from 'express';
-import multer from 'multer';
+import express, { Application } from 'express';
+import { employeePairRouter } from './routes/employeePair.route.js';
+import { errorMiddleware } from './middlewares/errorHandler.js';
 
 const app: Application = express();
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
 app.use(express.json());
 
-app.post('/api/upload', upload.single('file'), (req: Request, res: Response) => {
-  res.send({ msg: req.file?.originalname });
-});
+app.use('/api/find-pair', employeePairRouter);
+
+app.use(errorMiddleware);
 
 export default app;
