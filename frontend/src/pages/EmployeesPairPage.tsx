@@ -1,17 +1,26 @@
 import { FileUpload } from '@components/shared/FileUpload';
+import { appFetch } from '../utils/appFetch';
 
 export const EmployeesPairPage: React.FC = () => {
   const onFileUpload = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const response = await appFetch(
+        '/api/upload',
+        {
+          method: 'POST',
+          body: formData,
+        },
+        true,
+      );
 
-    const data = await response.json();
-    console.log(data);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
