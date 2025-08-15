@@ -1,5 +1,5 @@
 import { Button } from '@components/shared/Button';
-import type { FileUploadProps } from '@components/types/FileUploadsProps';
+import type { FileUploadProps } from '../../types/FileUploadsProps';
 import { useState, type DragEvent, type ChangeEvent, useRef } from 'react';
 
 export const FileUpload: React.FC<FileUploadProps> = ({

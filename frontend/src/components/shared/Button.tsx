@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import type { ButtonProps } from '../types/ButtonProps';
+import type { ButtonProps } from '../../types/ButtonProps';
 import { LoadingSpinner } from './LoadingSpinner';
 
 export const Button: React.FC<PropsWithChildren<ButtonProps>> = ({
