@@ -1,0 +1,29 @@
+import { FileUpload } from '@components/shared/FileUpload';
+
+export const EmployeesPairPage: React.FC = () => {
+  const onFileUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    console.log(data);
+  };
+
+  return (
+    <div className="flex flex-col gap-3 w-full min-h-full overflow-auto">
+      <div className="grow-0 flex justify-center items-center">
+        <h1 className="text-4xl">Employee Pair Finder</h1>
+      </div>
+      <div className="grow-1">
+        <FileUpload message="CSV up to 5MB" onFileUpload={onFileUpload} />
+      </div>
+
+      <div className="bg-blue-500 grow-5"></div>
+    </div>
+  );
+};
