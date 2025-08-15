@@ -4,8 +4,8 @@ const app: Application = express();
 
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello, TypeScript + Express!');
+app.get('/api/test', (_req: Request, res: Response) => {
+  res.send({ msg: 'hello' });
 });
 
 export default app;
