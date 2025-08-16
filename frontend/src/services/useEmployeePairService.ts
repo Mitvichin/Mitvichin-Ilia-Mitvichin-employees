@@ -1,9 +1,8 @@
 import { appFetch } from '@utils/appFetch';
-import { useState } from 'react';
 import type { EmployeeDataPair } from '../types/api/EmployeeDataPair';
 
 export const useEmployeePairService = () => {
-  const getEmployeePairs = async (file: File): Promise<EmployeeDataPair[]> => {
+  const getEmployeePairs = async (file: File): Promise<EmployeeDataPair> => {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -17,7 +16,7 @@ export const useEmployeePairService = () => {
         true,
       );
 
-      const data: EmployeeDataPair[] = await response.json();
+      const { data }: { data: EmployeeDataPair } = await response.json();
 
       return data;
     } catch (error) {
