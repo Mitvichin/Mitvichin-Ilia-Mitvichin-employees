@@ -5,14 +5,23 @@ import { EmployeesPairTable } from '@components/employees-pair/EmployeesPairTabl
 import type { EmployeeDataPair } from '@app-types/api/EmployeeDataPair';
 import { toast } from 'react-toastify';
 import { AppError } from '@app-types/AppError';
-import { UNKNOWN_ERROR } from '@utils/constants';
+import { MAX_FILE_SIZE_MB, UNKNOWN_ERROR } from '@utils/constants';
 
 export const EmployeesPairPage: React.FC = () => {
   const [pair, setPair] = useState<EmployeeDataPair | null>(null);
   const [error, setError] = useState('');
-  const { getEmployeePairs } = useEmployeePairService();
+  const { getEmployeePairs, validateFile } = useEmployeePairService();
 
   const onFileUpload = async (file: File) => {
+    const isValid = validateFile(file);
+
+    if (!isValid) {
+      setError(
+        `Invalid file! You must upload a CSV file with size less or equal to ${MAX_FILE_SIZE_MB}MB!`,
+      );
+      return;
+    }
+
     try {
       setError('');
       const employeePairs = await getEmployeePairs(file);
@@ -37,7 +46,7 @@ export const EmployeesPairPage: React.FC = () => {
       </div>
       <div className="grow-1">
         <FileUpload
-          message={'CSV up to 5MB'}
+          message={`CSV up to ${MAX_FILE_SIZE_MB}MB`}
           error={error}
           onFileUpload={onFileUpload}
         />

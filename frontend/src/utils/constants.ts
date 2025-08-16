@@ -1,6 +1,7 @@
 import { Bounce, type ToastContainerProps } from 'react-toastify';
 
 export const UNKNOWN_ERROR = 'Something went wrong! Try again later!';
+export const MAX_FILE_SIZE_MB = 5;
 
 export const TOAST_PROPS: ToastContainerProps = {
   position: 'bottom-right',
