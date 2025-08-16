@@ -1,5 +1,5 @@
+import type { EmployeeDataPair } from '@app-types/api/EmployeeDataPair';
 import { appFetch } from '@utils/appFetch';
-import type { EmployeeDataPair } from '../types/api/EmployeeDataPair';
 
 export const useEmployeePairService = () => {
   const getEmployeePairs = async (file: File): Promise<EmployeeDataPair> => {

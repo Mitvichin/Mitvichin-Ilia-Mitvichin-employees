@@ -1,4 +1,4 @@
-import { AppError } from '../types/AppError';
+import { AppError } from '@app-types/AppError';
 
 export const appFetch = async (
   url: string,
