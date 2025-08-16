@@ -27,7 +27,12 @@ const parseEmplyeeCSV = (
     const invalidCsvError = new BackendError(400, errorMessages.invalidCsv);
 
     stream
-      .pipe(csv())
+      .pipe(
+        csv({
+          mapValues: ({ header, index, value }) => value.trim(),
+          mapHeaders: ({ header }) => header.trim(),
+        }),
+      )
       .on('headers', (headers) => {
         const missing = expectedHeaders.filter((h) => !headers.includes(h));
         if (missing.length) {
