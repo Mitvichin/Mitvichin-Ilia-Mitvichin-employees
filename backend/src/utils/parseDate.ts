@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { BackendError } from '../types/BackendError.js';
+import { errorMessages } from './constants.js';
 
 dayjs.extend(customParseFormat);
 
@@ -10,7 +11,7 @@ export const parseDate = (dateStr: string) => {
   if (dateStr.toUpperCase() === 'NULL') {
     return dayjs(new Date());
   }
-  console.log(dateStr);
+
   for (const format of dateFormats) {
     const parsed = dayjs(dateStr, format, true);
     if (parsed.isValid()) {
@@ -18,5 +19,5 @@ export const parseDate = (dateStr: string) => {
     }
   }
 
-  throw new BackendError(400, 'INVALID_DATE_FORMAT');
+  throw new BackendError(400, errorMessages.invalidDateFormat);
 };

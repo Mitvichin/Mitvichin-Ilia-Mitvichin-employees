@@ -1,6 +1,5 @@
 import z from 'zod';
-import { errorMessages } from '../constants/errorMessages.js';
-import { MAX_FILE_SIZE_MB } from './constants.js';
+import { errorMessages, MAX_FILE_SIZE_MB } from './constants.js';
 
 export const csvFileSchema = z.object({
   originalname: z
