@@ -19,7 +19,8 @@
     "dayjs": "^1.11.13",
     "express": "^5.1.0",
     "heap-js": "^2.6.0",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

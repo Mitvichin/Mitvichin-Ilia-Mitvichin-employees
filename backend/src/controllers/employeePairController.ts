@@ -1,9 +1,13 @@
 import { RequestHandler } from 'express';
 import { processEmployeeData } from '../services/employeePairService.js';
+import { errorMessages } from '../constants/errorMessages.js';
 
 const processFile: RequestHandler = async (req, res, next) => {
   try {
-    if (!req.file) throw new Error('file missing');
+    if (!req.file) {
+      res.status(400).json({ message: errorMessages.missingFile });
+      return;
+    }
 
     const data = await processEmployeeData(req.file);
     res.status(200).json({ data });
