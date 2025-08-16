@@ -6,23 +6,18 @@ export const useEmployeePairService = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    try {
-      const response = await appFetch(
-        '/api/find-pair',
-        {
-          method: 'POST',
-          body: formData,
-        },
-        true,
-      );
+    const response = await appFetch(
+      '/api/find-pair',
+      {
+        method: 'POST',
+        body: formData,
+      },
+      true,
+    );
 
-      const { data }: { data: EmployeeDataPair } = await response.json();
+    const { data }: { data: EmployeeDataPair } = await response.json();
 
-      return data;
-    } catch (error) {
-      console.log(error);
-      throw new Error('failed');
-    }
+    return data;
   };
 
   return { getEmployeePairs };

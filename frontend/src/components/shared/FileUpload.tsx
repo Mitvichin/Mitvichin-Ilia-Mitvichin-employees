@@ -1,10 +1,11 @@
+import type { FileUploadProps } from '@app-types/FileUploadsProps';
 import { Button } from '@components/shared/Button';
-import type { FileUploadProps } from '../../types/FileUploadsProps';
 import { useState, type DragEvent, type ChangeEvent, useRef } from 'react';
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   message,
   onFileUpload,
+  error,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -45,10 +46,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     inputRef?.current?.click();
   };
 
+  const borderColors = error
+    ? 'border-red-300 bg-red-100 hover:bg-red-200'
+    : 'border-blue-300 bg-blue-100 hover:bg-blue-200';
+
   return (
     <div
       className={`w-full h-full flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 text-center transition-colors duration-200
-      ${isDragging ? 'border-blue-500 bg-blue-300' : 'border-blue-300 bg-blue-100 hover:bg-blue-200'}`}
+      ${isDragging ? 'border-blue-500 bg-blue-300' : borderColors}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -59,8 +64,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         className="hidden"
         onChange={handleFileSelect}
       />
-
-      {/* Icon */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-12 w-12 text-blue-700 mb-3"
@@ -91,7 +94,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         Select File
       </Button>
 
-      <p className="mt-2 text-sm text-blue-900 opacity-80">{message}</p>
+      <p
+        className={`mt-2 text-sm ${error ? 'text-red-900' : 'text-blue-900'} opacity-80`}
+      >
+        {error || message}
+      </p>
     </div>
   );
 };

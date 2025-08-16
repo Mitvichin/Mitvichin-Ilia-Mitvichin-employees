@@ -1,19 +1,33 @@
 import { FileUpload } from '@components/shared/FileUpload';
 import { useEmployeePairService } from '../services/useEmployeePairService';
-import type { EmployeeDataPair } from '../types/api/EmployeeDataPair';
 import { useState } from 'react';
 import { EmployeesPairTable } from '@components/employees-pair/EmployeesPairTable';
+import type { EmployeeDataPair } from '@app-types/api/EmployeeDataPair';
+import { toast } from 'react-toastify';
+import { AppError } from '@app-types/AppError';
+import { UNKNOWN_ERROR } from '@utils/constants';
 
 export const EmployeesPairPage: React.FC = () => {
   const [pair, setPair] = useState<EmployeeDataPair | null>(null);
+  const [error, setError] = useState('');
   const { getEmployeePairs } = useEmployeePairService();
 
   const onFileUpload = async (file: File) => {
     try {
+      setError('');
       const employeePairs = await getEmployeePairs(file);
       setPair(employeePairs);
-      console.log(employeePairs);
-    } catch (error) {}
+      toast.success('File upload successfull!');
+    } catch (err) {
+      if (err instanceof AppError) {
+        toast.error(err.message);
+        setError(err.message);
+        setPair(null);
+        return;
+      }
+
+      toast.error(UNKNOWN_ERROR);
+    }
   };
 
   return (
@@ -22,7 +36,11 @@ export const EmployeesPairPage: React.FC = () => {
         <h1 className="text-4xl">Employee Pair Finder</h1>
       </div>
       <div className="grow-1">
-        <FileUpload message="CSV up to 5MB" onFileUpload={onFileUpload} />
+        <FileUpload
+          message={'CSV up to 5MB'}
+          error={error}
+          onFileUpload={onFileUpload}
+        />
       </div>
 
       <div className="grow-5">

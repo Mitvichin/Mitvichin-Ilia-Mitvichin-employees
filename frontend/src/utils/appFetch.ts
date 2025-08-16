@@ -1,4 +1,6 @@
 import { AppError } from '@app-types/AppError';
+import { backendErrorMap } from './backendErrorsMap';
+import { UNKNOWN_ERROR } from './constants';
 
 export const appFetch = async (
   url: string,
@@ -18,11 +20,23 @@ export const appFetch = async (
     });
 
     if (!res.ok) {
-      throw new AppError(res.status, 'Something went wrong!'); // TODO: better error handling
+      if (res.status >= 400 && res.status <= 499) {
+        const error: { message: keyof typeof backendErrorMap } =
+          await res.json();
+
+        throw new AppError(
+          res.status,
+          backendErrorMap[error.message] || UNKNOWN_ERROR,
+        );
+      }
     }
 
     return res;
-  } catch (error) {
-    throw new AppError(500, 'Internal server error!');
+  } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+
+    throw new AppError(500, UNKNOWN_ERROR);
   }
 };
