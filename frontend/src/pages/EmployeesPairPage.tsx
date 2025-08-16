@@ -1,26 +1,15 @@
 import { FileUpload } from '@components/shared/FileUpload';
-import { appFetch } from '../utils/appFetch';
+import { useEmployeePairService } from '../services/useEmployeePairService';
 
 export const EmployeesPairPage: React.FC = () => {
+  const { getEmployeePairs } = useEmployeePairService();
+
   const onFileUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await appFetch(
-        '/api/find-pair',
-        {
-          method: 'POST',
-          body: formData,
-        },
-        true,
-      );
+      const employeePairs = await getEmployeePairs(file);
 
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
+      console.log(employeePairs);
+    } catch (error) {}
   };
 
   return (
