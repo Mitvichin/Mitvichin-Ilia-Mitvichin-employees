@@ -10,6 +10,7 @@ export default defineConfig({
       '@components': '/src/components',
       '@pages': '/src/pages',
       '@utils': '/src/utils',
+      '@app-types': '/src/app-types',
     },
   },
   server: {

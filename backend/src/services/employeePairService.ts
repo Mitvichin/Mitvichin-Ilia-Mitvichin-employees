@@ -81,9 +81,10 @@ const parseEmplyeeCSV = (
   });
 };
 
-const getPairResults = (groups: Record<string, EmployeWithoutId[]>) => {
+const getPairResults = (groups: Record<string, EmployeWithoutId[]>): EmployeePairResult[string] => {
   let max = 0;
   const store: EmployeePairResult = {};
+  let maxPair: string | null = null;
 
   for (const [projectId, employees] of Object.entries(groups)) {
     employees.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf());
@@ -95,7 +96,7 @@ const getPairResults = (groups: Record<string, EmployeWithoutId[]>) => {
         active.pop();
       }
 
-      for (const other of active) {
+      for (const other of active.toArray()) {
         const overlapStart = emp.startDate.isAfter(other.startDate)
           ? emp.startDate
           : other.startDate;
@@ -119,21 +120,16 @@ const getPairResults = (groups: Record<string, EmployeWithoutId[]>) => {
 
           if (store[key].total > max) {
             max = store[key].total;
+            maxPair = key;
           }
         }
-
-        active.push(emp);
       }
+
+      active.push(emp);
     }
   }
 
-  let maxPairs: EmployeePairResult[string][] = [];
-
-  for (let [, value] of Object.entries(store)) {
-    if (value.total === max) maxPairs.push(value);
-  }
-
-  return maxPairs;
+  return maxPair === null ? { total: 0, projects: [] } : store[maxPair]!;
 };
 
 const processEmployeeData = async (file: Express.Multer.File) => {

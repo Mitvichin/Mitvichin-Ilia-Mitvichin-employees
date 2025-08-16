@@ -1,26 +1,19 @@
 import { FileUpload } from '@components/shared/FileUpload';
-import { appFetch } from '../utils/appFetch';
+import { useEmployeePairService } from '../services/useEmployeePairService';
+import type { EmployeeDataPair } from '../types/api/EmployeeDataPair';
+import { useState } from 'react';
+import { EmployeesPairTable } from '@components/employees-pair/EmployeesPairTable';
 
 export const EmployeesPairPage: React.FC = () => {
+  const [pair, setPair] = useState<EmployeeDataPair | null>(null);
+  const { getEmployeePairs } = useEmployeePairService();
+
   const onFileUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await appFetch(
-        '/api/find-pair',
-        {
-          method: 'POST',
-          body: formData,
-        },
-        true,
-      );
-
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
+      const employeePairs = await getEmployeePairs(file);
+      setPair(employeePairs);
+      console.log(employeePairs);
+    } catch (error) {}
   };
 
   return (
@@ -32,7 +25,9 @@ export const EmployeesPairPage: React.FC = () => {
         <FileUpload message="CSV up to 5MB" onFileUpload={onFileUpload} />
       </div>
 
-      <div className="bg-blue-500 grow-5"></div>
+      <div className="grow-5">
+        <EmployeesPairTable data={pair} />
+      </div>
     </div>
   );
 };
