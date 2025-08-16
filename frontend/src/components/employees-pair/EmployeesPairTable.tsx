@@ -14,7 +14,7 @@ const headers: { key: Header; label: string }[] = [
 export const EmployeesPairTable: React.FC<EmployeesPairTableProps> = ({
   data,
 }) => {
-  const empty = !data;
+  const empty = !data || data.total === 0;
 
   const rows = data?.projects.map((row, idx) => (
     <EmployeeRow
