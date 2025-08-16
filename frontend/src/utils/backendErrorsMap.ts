@@ -7,4 +7,5 @@ export const backendErrorMap = {
   INVALID_FILE_EXTENSION:
     'Invalid file extension! Only CSV files are supported!',
   INVALID_FILE_SIZE: `The file you upload must at most ${MAX_FILE_SIZE_MB}MB`,
+  MISSING_FILE: `Please, provide a file!`,
 } as const;

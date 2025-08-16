@@ -24,6 +24,7 @@ export const EmployeesPairPage: React.FC = () => {
 
     try {
       setError('');
+      setPair(null);
       const employeePairs = await getEmployeePairs(file);
       setPair(employeePairs);
       toast.success('File upload successfull!');
