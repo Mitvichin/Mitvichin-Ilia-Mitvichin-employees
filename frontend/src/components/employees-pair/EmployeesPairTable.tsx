@@ -42,9 +42,11 @@ export const EmployeesPairTable: React.FC<EmployeesPairTableProps> = ({
     <div className="w-full">
       <div className="mb-3 flex justify-between flex-col sm:flex-row">
         <h2 className="text-xl font-semibold tracking-tight">Employee Pair</h2>
-        <p className="text-xl font-semibold tracking-tight">
-          Total days worked: {data?.total}
-        </p>
+        {data && (
+          <p className="text-xl font-semibold tracking-tight">
+            Total days worked: {data.total}
+          </p>
+        )}
       </div>
 
       <div className="rounded-2xl border border-blue-300 shadow-sm overflow-hidden bg-white">

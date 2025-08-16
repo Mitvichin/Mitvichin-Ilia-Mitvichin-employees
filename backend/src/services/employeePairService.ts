@@ -4,6 +4,8 @@ import { Readable } from 'stream';
 import { Employee } from '../types/Employee.js';
 import { EmployeeRow } from '../types/EmployeeRow.js';
 import { Heap } from 'heap-js';
+import { BackendError } from '../types/BackendError.js';
+import { errorMessages } from '../constants/errorMessages.js';
 
 const expectedHeaders: (keyof EmployeeRow)[] = ['EmpID', 'ProjectID', 'DateFrom', 'DateTo'];
 const dateFormat = 'YYYY-MM-DD';
@@ -20,38 +22,24 @@ const parseEmplyeeCSV = (
   file: Express.Multer.File,
 ): Promise<Record<string, EmployeWithoutId[]>> => {
   return new Promise((res, rej) => {
-    const errors: string[] = [];
-    let isHeaderChecked = false;
-    let rowIndex = 1;
     const stream = Readable.from(file.buffer);
     const byProject: Record<string, EmployeWithoutId[]> = {};
+    const invalidCsvError = new BackendError(400, errorMessages.invalidCsv);
 
     stream
       .pipe(csv())
       .on('headers', (headers) => {
-        isHeaderChecked = true;
         const missing = expectedHeaders.filter((h) => !headers.includes(h));
         if (missing.length) {
-          errors.push(`Missing headers: ${missing.join(', ')}`);
+          rej(invalidCsvError);
         }
       })
       .on('data', (row: EmployeeRow) => {
-        let errorMsg = 'Missing value for ';
-        let hasError = false;
         expectedHeaders.forEach((field) => {
           if (!row[field]) {
-            hasError = true;
-            errorMsg += field + ', ';
+            rej(invalidCsvError);
           }
         });
-
-        if (hasError) {
-          errorMsg = errorMsg.slice(0, -2);
-          errorMsg += ` in row ${rowIndex}!`;
-          errors.push(errorMsg);
-        }
-
-        rowIndex++;
 
         if (row.DateTo === 'NULL') {
           row.DateTo = new Date().toString();
@@ -71,12 +59,14 @@ const parseEmplyeeCSV = (
         });
       })
       .on('end', () => {
-        if (!isHeaderChecked) errors.push('CSV has no headers');
-        if (errors.length) rej({ status: 400, message: errors.join(' ') });
         res(byProject);
       })
       .on('error', (err) => {
-        rej({ status: 500, message: err.message });
+        if (err instanceof BackendError) {
+          rej(err);
+        }
+
+        rej(new BackendError(500, errorMessages.parseError));
       });
   });
 };
