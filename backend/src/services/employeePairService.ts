@@ -4,8 +4,17 @@ import { Readable } from 'stream';
 import { Employee } from '../types/Employee.js';
 import { EmployeeRow } from '../types/EmployeeRow.js';
 import { Heap } from 'heap-js';
+
 const expectedHeaders: (keyof EmployeeRow)[] = ['EmpID', 'ProjectID', 'DateFrom', 'DateTo'];
+const dateFormat = 'YYYY-MM-DD';
 type EmployeWithoutId = Omit<Employee, 'projectId'>;
+type EmployeePairResult = Record<
+  string,
+  {
+    total: number;
+    projects: { empId1: number; empId2: number; projectId: number; days: number }[];
+  }
+>;
 
 const parseEmplyeeCSV = (
   file: Express.Multer.File,
@@ -48,10 +57,12 @@ const parseEmplyeeCSV = (
           row.DateTo = new Date().toString();
         }
 
-        row.DateTo = dayjs(row.DateTo).format('YYYY-MM-DD');
-        row.DateFrom = dayjs(row.DateFrom).format('YYYY-MM-DD');
+        row.DateTo = dayjs(row.DateTo).format(dateFormat);
+        row.DateFrom = dayjs(row.DateFrom).format(dateFormat);
 
-        if (!byProject[row.ProjectID]) byProject[row.ProjectID] = [];
+        if (!byProject[row.ProjectID]) {
+          byProject[row.ProjectID] = [];
+        }
 
         byProject[row.ProjectID]?.push({
           id: Number(row.EmpID),
@@ -70,23 +81,16 @@ const parseEmplyeeCSV = (
   });
 };
 
-const handleFileUpload = async (file: Express.Multer.File) => {
-  const groupedByProject = await parseEmplyeeCSV(file);
+const getPairResults = (groups: Record<string, EmployeWithoutId[]>) => {
   let max = 0;
-  let maxKey = null;
-  const store: Record<
-    string,
-    {
-      total: number;
-      projects: { empId1: number; empId2: number; projectId: number; days: number }[];
-    }
-  > = {};
+  const store: EmployeePairResult = {};
 
-  for (const [projectId, emps] of Object.entries(groupedByProject)) {
-    emps.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf());
+  for (const [projectId, employees] of Object.entries(groups)) {
+    employees.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf());
+
     const active = new Heap<EmployeWithoutId>((a, b) => a.endDate.valueOf() - b.endDate.valueOf());
 
-    for (const emp of emps) {
+    for (const emp of employees) {
       while (active.peek() && active.peek()!.endDate.isBefore(emp.startDate)) {
         active.pop();
       }
@@ -101,7 +105,9 @@ const handleFileUpload = async (file: Express.Multer.File) => {
           const overlapDays = overlapEnd.diff(overlapStart, 'day');
           const key = [emp.id, other.id].sort((a, b) => a - b).join('-');
 
-          if (!store[key]) store[key] = { total: 0, projects: [] };
+          if (!store[key]) {
+            store[key] = { total: 0, projects: [] };
+          }
 
           store[key].total += overlapDays;
           store[key].projects.push({
@@ -113,16 +119,27 @@ const handleFileUpload = async (file: Express.Multer.File) => {
 
           if (store[key].total > max) {
             max = store[key].total;
-            maxKey = key;
           }
         }
-      }
 
-      active.push(emp);
+        active.push(emp);
+      }
     }
   }
 
-  return maxKey !== null ? store[maxKey] : {};
+  let maxPairs: EmployeePairResult[string][] = [];
+
+  for (let [, value] of Object.entries(store)) {
+    if (value.total === max) maxPairs.push(value);
+  }
+
+  return maxPairs;
 };
 
-export { handleFileUpload };
+const processEmployeeData = async (file: Express.Multer.File) => {
+  const groupedByProject = await parseEmplyeeCSV(file);
+
+  return getPairResults(groupedByProject);
+};
+
+export { processEmployeeData };
