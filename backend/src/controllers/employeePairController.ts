@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { processEmployeeData } from '../services/employeePairService.js';
-import { errorMessages } from '../constants/errorMessages.js';
+import { errorMessages } from '../utils/constants.js';
 
 const processFile: RequestHandler = async (req, res, next) => {
   try {

@@ -4,8 +4,8 @@ import { Employee } from '../types/Employee.js';
 import { EmployeeRow } from '../types/EmployeeRow.js';
 import { Heap } from 'heap-js';
 import { BackendError } from '../types/BackendError.js';
-import { errorMessages } from '../constants/errorMessages.js';
 import { parseDate } from '../utils/parseDate.js';
+import { errorMessages } from '../utils/constants.js';
 
 const expectedHeaders: (keyof EmployeeRow)[] = ['EmpID', 'ProjectID', 'DateFrom', 'DateTo'];
 
@@ -27,7 +27,12 @@ const parseEmplyeeCSV = (
     const invalidCsvError = new BackendError(400, errorMessages.invalidCsv);
 
     stream
-      .pipe(csv())
+      .pipe(
+        csv({
+          mapValues: ({ header, index, value }) => value.trim(),
+          mapHeaders: ({ header }) => header.trim(),
+        }),
+      )
       .on('headers', (headers) => {
         const missing = expectedHeaders.filter((h) => !headers.includes(h));
         if (missing.length) {
