@@ -89,17 +89,20 @@ const getPairResults = (groups: Record<string, EmployeWithoutId[]>): EmployeePai
           : other.startDate;
         const overlapEnd = emp.endDate.isBefore(other.endDate) ? emp.endDate : other.endDate;
         if (overlapStart.isBefore(overlapEnd) && other.id !== emp.id) {
-          const overlapDays = overlapEnd.diff(overlapStart, 'day');
+          const overlapDays = overlapEnd.diff(overlapStart, 'day') + 1;
           const key = [emp.id, other.id].sort((a, b) => a - b).join('-');
 
           if (!store[key]) {
             store[key] = { total: 0, projects: [] };
           }
 
+          const smallerId = emp.id > other.id ? other.id : emp.id;
+          const biggerId = emp.id < other.id ? other.id : emp.id;
+
           store[key].total += overlapDays;
           store[key].projects.push({
-            empId1: emp.id,
-            empId2: other.id,
+            empId1: smallerId,
+            empId2: biggerId,
             projectId: Number(projectId),
             days: overlapDays,
           });
@@ -115,7 +118,10 @@ const getPairResults = (groups: Record<string, EmployeWithoutId[]>): EmployeePai
     }
   }
 
-  return maxPair === null ? { total: 0, projects: [] } : store[maxPair]!;
+  let res = maxPair === null ? { total: 0, projects: [] } : store[maxPair]!;
+  res.projects.sort((a, b) => a.days - b.days);
+
+  return res;
 };
 
 const processEmployeeData = async (file: Express.Multer.File) => {
