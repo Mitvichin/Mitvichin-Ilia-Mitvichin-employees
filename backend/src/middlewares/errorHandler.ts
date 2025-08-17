@@ -1,0 +1,12 @@
+import { ErrorRequestHandler } from 'express';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const errorMiddleware: ErrorRequestHandler = (err, _req, res, _next) => {
+  console.log(err);
+
+  if (err.message) {
+    return res.status(err.status || 500).json({ message: err.message });
+  }
+
+  res.status(500).json({ message: 'Internal Server Error' });
+};
