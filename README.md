@@ -1,6 +1,6 @@
-# Mitvichin-Ilia-Mitvichin-employees
+# Ilia-Mitvichin-employees
 
-Project for Sirma
+Project for Sirma.
 This is a simple full-stack application built with **Express** (backend) and **React** (frontend).
 
 ## Table of Contents
