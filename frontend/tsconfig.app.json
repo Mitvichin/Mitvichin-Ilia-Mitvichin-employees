@@ -29,5 +29,5 @@
       "@app-types/*": ["./src/app-types/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "setupTests.ts"]
 }

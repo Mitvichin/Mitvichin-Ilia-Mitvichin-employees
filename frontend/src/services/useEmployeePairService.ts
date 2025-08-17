@@ -16,6 +16,8 @@ export const useEmployeePairService = () => {
       true,
     );
 
+    console.log(response.json);
+
     const { data }: { data: EmployeeDataPair } = await response.json();
 
     return data;
