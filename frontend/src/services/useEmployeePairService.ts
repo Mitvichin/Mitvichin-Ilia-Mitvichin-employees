@@ -8,7 +8,7 @@ export const useEmployeePairService = () => {
     formData.append('file', file);
 
     const response = await appFetch(
-      '/api/find-pair',
+      '/find-pair',
       {
         method: 'POST',
         body: formData,

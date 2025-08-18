@@ -1,6 +1,6 @@
 import { AppError } from '@app-types/AppError';
 import { backendErrorMap } from './backendErrorsMap';
-import { UNKNOWN_ERROR } from './constants';
+import { BASE_API_URL, UNKNOWN_ERROR } from './constants';
 
 export const appFetch = async (
   url: string,
@@ -14,7 +14,7 @@ export const appFetch = async (
   }
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(`${BASE_API_URL}${url}`, {
       ...init,
       headers,
     });

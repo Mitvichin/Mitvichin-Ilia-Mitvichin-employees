@@ -65,7 +65,7 @@ describe('useEmployeePairService', () => {
       const result = await service.getEmployeePairs(file);
 
       expect(appFetch).toHaveBeenCalledWith(
-        '/api/find-pair',
+        '/find-pair',
         expect.objectContaining({
           method: 'POST',
           body: expect.any(FormData),

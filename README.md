@@ -37,10 +37,9 @@ Make sure you have the following installed:
 git clone https://github.com/Mitvichin/Mitvichin-Ilia-Mitvichin-employees
 ```
 
-2. ```cd frontend``` and run ```npm i```
-3. run ```npm run dev```
-4. ```cd backend``` and run ```npm i```
-5. run ```npm run dev```
+2. `cd frontend` and run `npm i`
+3. run `npm run dev`
+4. `cd backend` and run `npm i`
+5. run `npm run dev`
 
-
-For test run ```npm run test```
+For test run `npm run test`
