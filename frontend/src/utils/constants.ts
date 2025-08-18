@@ -1,6 +1,7 @@
 import { Bounce, type ToastContainerProps } from 'react-toastify';
 
 export const UNKNOWN_ERROR = 'Something went wrong! Try again later!';
+export const BASE_API_URL = '/api';
 export const SUPPORETED_DATE_FORMATS = [
   'YYYY-MM-DD',
   'DD/MM/YYYY',

@@ -1,4 +1,5 @@
 export const MAX_FILE_SIZE_MB = 5;
+export const BASE_API_URL = '/api';
 export const errorMessages = {
   invalidCsv: 'INVALID_CSV',
   parseError: 'PARSE_ERROR',
