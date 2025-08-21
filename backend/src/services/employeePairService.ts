@@ -40,11 +40,15 @@ const parseEmplyeeCSV = (
         }
       })
       .on('data', (row: EmployeeRow) => {
+        let hasError = false;
         expectedHeaders.forEach((field) => {
           if (!row[field]) {
+            hasError = true;
             rej(invalidCsvError);
           }
         });
+
+        if (hasError) return;
 
         if (!byProject[row.ProjectID]) {
           byProject[row.ProjectID] = [];
